@@ -1,0 +1,1186 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="theme-color" content="#1a1a2e">
+<title>ПотолокПро</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Montserrat:wght@700;800&display=swap');
+:root{--bg:#0f0f1a;--surface:#1a1a2e;--card:#22223b;--accent:#c9a84c;--accent2:#e8c97a;--text:#f0eee8;--muted:#8a8a9a;--border:#2e2e48;--green:#4caf7d;--red:#e05c5c;--radius:14px;}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent;}
+body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;overflow-x:hidden;}
+/* NAV */
+.topbar{position:sticky;top:0;z-index:100;background:var(--surface);border-bottom:1px solid var(--border);padding:12px 16px;display:flex;align-items:center;justify-content:space-between;}
+.topbar-title{font-family:'Montserrat',sans-serif;font-size:17px;font-weight:800;color:var(--accent);}
+.topbar-sub{font-size:11px;color:var(--muted);margin-top:1px;}
+.nav{display:flex;background:var(--surface);border-bottom:1px solid var(--border);position:sticky;top:59px;z-index:99;overflow-x:auto;scrollbar-width:none;}
+.nav::-webkit-scrollbar{display:none;}
+.nav-btn{flex:1;min-width:68px;padding:9px 4px;border:none;background:none;color:var(--muted);font-family:'Inter',sans-serif;font-size:10px;font-weight:500;cursor:pointer;border-bottom:2px solid transparent;transition:all .2s;white-space:nowrap;display:flex;flex-direction:column;align-items:center;gap:2px;}
+.nav-btn.active{color:var(--accent);border-bottom-color:var(--accent);}
+.nav-btn svg{width:19px;height:19px;}
+.page{display:none;padding:14px;}
+.page.active{display:block;}
+.page-room-wrap{display:none;flex-direction:column;height:calc(100vh - 59px - 50px);}
+.page-room-wrap.active{display:flex;}
+/* CARDS */
+.card{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);padding:14px;margin-bottom:10px;}
+.card-title{font-size:12px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.8px;margin-bottom:10px;}
+label{display:block;font-size:13px;color:var(--muted);margin-bottom:4px;}
+input,select{width:100%;background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:10px 13px;color:var(--text);font-family:'Inter',sans-serif;font-size:14px;outline:none;transition:border-color .2s;appearance:none;}
+input:focus,select:focus{border-color:var(--accent);}
+.field{margin-bottom:12px;}
+.row2{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
+.btn{width:100%;padding:12px;border:none;border-radius:var(--radius);font-family:'Inter',sans-serif;font-size:14px;font-weight:600;cursor:pointer;transition:all .2s;letter-spacing:.2px;}
+.btn-primary{background:var(--accent);color:#0f0f1a;}
+.btn-primary:active{transform:scale(.98);}
+.btn-secondary{background:var(--surface);color:var(--text);border:1px solid var(--border);}
+.btn-danger{background:transparent;color:var(--red);border:1px solid var(--red);}
+.btn-sm{padding:7px 13px;font-size:12px;width:auto;border-radius:8px;}
+.btn-icon{padding:7px;width:34px;height:34px;display:flex;align-items:center;justify-content:center;border-radius:8px;}
+/* RESULT */
+.result-box{background:linear-gradient(135deg,#1e1e38,#252540);border:1px solid var(--accent);border-radius:var(--radius);padding:18px;margin-top:14px;}
+.result-total{font-family:'Montserrat',sans-serif;font-size:28px;font-weight:800;color:var(--accent);}
+.result-label{font-size:11px;color:var(--muted);margin-bottom:3px;}
+.result-line{display:flex;justify-content:space-between;align-items:flex-start;padding:7px 0;border-bottom:1px solid var(--border);font-size:13px;}
+.result-line:last-child{border-bottom:none;}
+.result-line .val{font-weight:600;color:var(--accent2);flex-shrink:0;margin-left:8px;}
+/* EXTRA */
+.extra-item{display:flex;align-items:center;justify-content:space-between;padding:9px 0;border-bottom:1px solid var(--border);}
+.extra-item:last-child{border-bottom:none;}
+.toggle{width:42px;height:24px;border-radius:12px;background:var(--border);position:relative;cursor:pointer;transition:background .2s;flex-shrink:0;}
+.toggle.on{background:var(--accent);}
+.toggle::after{content:'';position:absolute;top:3px;left:3px;width:18px;height:18px;border-radius:50%;background:white;transition:transform .2s;}
+.toggle.on::after{transform:translateX(18px);}
+.extra-label{font-size:13px;font-weight:500;}
+.extra-price{font-size:11px;color:var(--muted);}
+.extra-qty{display:flex;align-items:center;gap:8px;margin-top:5px;}
+.qty-btn{width:26px;height:26px;border-radius:7px;background:var(--surface);border:1px solid var(--border);color:var(--text);font-size:15px;font-weight:600;cursor:pointer;display:flex;align-items:center;justify-content:center;}
+.qty-num{font-size:14px;font-weight:600;min-width:22px;text-align:center;}
+/* TOAST */
+.toast{position:fixed;bottom:20px;left:50%;transform:translateX(-50%) translateY(80px);background:var(--green);color:white;padding:11px 20px;border-radius:30px;font-size:13px;font-weight:600;transition:transform .3s;z-index:999;white-space:nowrap;pointer-events:none;}
+.toast.show{transform:translateX(-50%) translateY(0);}
+.toast.error{background:var(--red);}
+/* MODAL */
+.modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.75);z-index:200;align-items:flex-end;justify-content:center;}
+.modal-overlay.open{display:flex;}
+.modal{background:var(--surface);border-radius:20px 20px 0 0;padding:18px;width:100%;max-height:92vh;overflow-y:auto;border-top:1px solid var(--border);}
+.modal-handle{width:38px;height:4px;background:var(--border);border-radius:2px;margin:0 auto 14px;}
+.modal-title{font-size:16px;font-weight:700;margin-bottom:14px;}
+/* CATALOG */
+.cat-item{background:var(--card);border:1px solid var(--border);border-radius:10px;padding:11px 13px;margin-bottom:8px;display:flex;align-items:center;gap:10px;}
+.cat-dot{width:9px;height:9px;border-radius:50%;flex-shrink:0;}
+.cat-info{flex:1;}
+.cat-name{font-size:13px;font-weight:500;}
+.cat-price{font-size:11px;color:var(--muted);margin-top:2px;}
+.cat-actions{display:flex;gap:5px;}
+.edit-inline{display:none;}
+.cat-item.editing .edit-inline{display:flex;gap:6px;align-items:center;margin-top:7px;}
+.cat-item.editing .cat-view{display:none;}
+.price-input{width:80px!important;padding:5px 8px!important;font-size:13px!important;}
+.sub-tabs{display:flex;gap:7px;overflow-x:auto;scrollbar-width:none;margin-bottom:12px;}
+.sub-tabs::-webkit-scrollbar{display:none;}
+.sub-tab{padding:6px 14px;border-radius:20px;background:var(--card);border:1px solid var(--border);color:var(--muted);font-size:12px;font-weight:500;cursor:pointer;white-space:nowrap;transition:all .2s;}
+.sub-tab.active{background:var(--accent);color:#0f0f1a;border-color:var(--accent);}
+/* CLIENTS */
+.client-card{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);padding:13px;margin-bottom:9px;cursor:pointer;}
+.client-card:active{border-color:var(--accent);}
+.client-header{display:flex;justify-content:space-between;align-items:flex-start;}
+.client-name{font-size:14px;font-weight:600;}
+.client-date{font-size:11px;color:var(--muted);}
+.client-detail{font-size:12px;color:var(--muted);margin-top:3px;}
+.client-total{font-size:16px;font-weight:700;color:var(--accent);margin-top:5px;}
+.empty{text-align:center;padding:40px 20px;}
+.empty-icon{font-size:44px;margin-bottom:10px;}
+.empty-text{color:var(--muted);font-size:13px;line-height:1.5;}
+.chip{display:inline-flex;align-items:center;font-size:11px;color:var(--muted);background:var(--surface);border:1px solid var(--border);border-radius:20px;padding:3px 9px;margin:2px;}
+.discount-row{display:flex;align-items:center;gap:8px;}
+.discount-row input{flex:1;}
+.discount-row select{width:56px;padding:10px 6px;}
+
+/* ======= ПРОЕКТ (несколько помещений) ======= */
+.project-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;}
+.project-title{font-size:17px;font-weight:700;}
+.room-card{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);margin-bottom:10px;overflow:hidden;}
+.room-card-header{display:flex;align-items:center;padding:12px 14px;gap:10px;cursor:pointer;}
+.room-card-header:active{background:rgba(255,255,255,.03);}
+.room-color-dot{width:12px;height:12px;border-radius:50%;flex-shrink:0;}
+.room-card-name{font-size:14px;font-weight:600;flex:1;}
+.room-card-meta{font-size:11px;color:var(--muted);}
+.room-card-price{font-size:14px;font-weight:700;color:var(--accent);}
+.room-card-chevron{color:var(--muted);transition:transform .2s;font-size:16px;}
+.room-card-chevron.open{transform:rotate(180deg);}
+.room-card-body{display:none;padding:0 14px 14px;}
+.room-card-body.open{display:block;}
+.room-total-bar{background:linear-gradient(90deg,rgba(201,168,76,.12),transparent);border-top:1px solid var(--accent);padding:12px 14px;display:flex;justify-content:space-between;align-items:center;}
+.project-summary{background:linear-gradient(135deg,#1e1e38,#252540);border:1px solid var(--accent);border-radius:var(--radius);padding:16px;margin-bottom:12px;}
+.project-grand{font-family:'Montserrat',sans-serif;font-size:30px;font-weight:800;color:var(--accent);}
+
+/* ======= ROOM EDITOR ======= */
+.room-tabs-bar{display:flex;align-items:center;gap:6px;padding:8px 12px;background:var(--surface);border-bottom:1px solid var(--border);overflow-x:auto;scrollbar-width:none;}
+.room-tabs-bar::-webkit-scrollbar{display:none;}
+.room-tab-pill{padding:5px 14px;border-radius:20px;background:var(--card);border:1.5px solid var(--border);color:var(--muted);font-size:12px;font-weight:600;cursor:pointer;white-space:nowrap;transition:all .2s;display:flex;align-items:center;gap:5px;}
+.room-tab-pill.active{background:rgba(201,168,76,.15);border-color:var(--accent);color:var(--accent);}
+.room-tab-add{width:30px;height:30px;border-radius:50%;background:var(--card);border:1.5px solid var(--border);color:var(--muted);font-size:18px;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:all .2s;}
+.room-tab-add:active{background:var(--accent);color:#0f0f1a;border-color:var(--accent);}
+.room-toolbar{display:flex;gap:6px;padding:8px 10px;background:var(--surface);border-bottom:1px solid var(--border);overflow-x:auto;scrollbar-width:none;align-items:center;}
+.room-toolbar::-webkit-scrollbar{display:none;}
+.tool-btn{display:flex;flex-direction:column;align-items:center;gap:2px;padding:5px 8px;border-radius:9px;border:1.5px solid var(--border);background:var(--card);color:var(--muted);font-size:9px;font-weight:600;cursor:pointer;white-space:nowrap;min-width:46px;transition:all .2s;}
+.tool-btn.active{border-color:var(--accent);color:var(--accent);background:rgba(201,168,76,.1);}
+.tool-btn svg{width:16px;height:16px;}
+.canvas-wrap{flex:1;overflow:hidden;background:#09090f;position:relative;}
+#roomCanvas{display:block;touch-action:none;}
+.room-status{padding:7px 12px;background:var(--surface);border-top:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:4px;flex-shrink:0;}
+.room-area-badge{font-family:'Montserrat',sans-serif;font-size:16px;font-weight:800;color:var(--accent);}
+.room-actions{padding:8px 10px;background:var(--surface);display:flex;gap:7px;flex-shrink:0;}
+.scale-info{padding:4px 12px;background:var(--bg);display:flex;align-items:center;gap:8px;font-size:11px;color:var(--muted);border-bottom:1px solid var(--border);flex-shrink:0;}
+</style>
+</head>
+<body>
+
+<!-- TOPBAR -->
+<div class="topbar">
+  <div>
+    <div class="topbar-title">ПотолокПро</div>
+    <div class="topbar-sub" id="projectSubtitle">Натяжные потолки</div>
+  </div>
+  <button class="btn-sm btn-secondary" style="border:1px solid var(--border);border-radius:8px;background:var(--card);color:var(--muted);font-size:12px;padding:6px 12px;cursor:pointer;" onclick="openModal('modalProjectName')">✏️ Проект</button>
+</div>
+
+<!-- NAV -->
+<div class="nav">
+  <button class="nav-btn active" onclick="goPage('project')">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="3" width="20" height="14" rx="2"/><path d="M8 21h8M12 17v4"/></svg>
+    Проект
+  </button>
+  <button class="nav-btn" onclick="goPage('room')">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="3 9 12 2 21 9 21 22 3 22"/><rect x="9" y="14" width="6" height="8"/></svg>
+    Планировка
+  </button>
+  <button class="nav-btn" onclick="goPage('catalog')">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 6h16M4 10h16M4 14h10M4 18h7"/></svg>
+    Каталог
+  </button>
+  <button class="nav-btn" onclick="goPage('clients')">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="9" cy="7" r="4"/><path d="M3 21v-2a4 4 0 014-4h4a4 4 0 014 4v2"/><path d="M16 3.13a4 4 0 010 7.75"/><path d="M21 21v-2a4 4 0 00-3-3.87"/></svg>
+    Клиенты
+  </button>
+</div>
+
+<!-- ========== ПРОЕКТ ========== -->
+<div class="page active" id="page-project">
+  <div class="project-header">
+    <div class="project-title">Помещения</div>
+    <button class="btn btn-primary btn-sm" onclick="addRoom()">+ Помещение</button>
+  </div>
+  <div id="projectSummary" style="display:none;" class="project-summary">
+    <div style="font-size:11px;color:var(--muted);margin-bottom:2px;">ИТОГО ПО ПРОЕКТУ</div>
+    <div class="project-grand" id="projectGrand">0 ₽</div>
+    <div id="projectRoomsSummary" style="margin-top:10px;"></div>
+  </div>
+  <div id="roomsList"></div>
+  <div id="projectEmpty" class="empty">
+    <div class="empty-icon">🏠</div>
+    <div class="empty-text">Нажмите «+ Помещение» чтобы добавить<br>первую комнату в проект</div>
+  </div>
+  <div style="height:8px"></div>
+  <div id="projectClientBlock" style="display:none;">
+    <div class="card">
+      <div class="card-title">Клиент</div>
+      <div class="field"><label>Имя / компания</label><input type="text" id="clientName" placeholder="Иванов Иван"></div>
+      <div class="field"><label>Телефон</label><input type="tel" id="clientPhone" placeholder="+7 (___) ___-__-__"></div>
+    </div>
+    <button class="btn btn-primary" onclick="saveClient()">💾 Сохранить проект</button>
+    <div style="height:8px"></div>
+    <button class="btn btn-secondary" onclick="shareProject()">📤 Поделиться</button>
+    <div style="height:8px"></div>
+    <button class="btn btn-secondary" onclick="newProject()">🔄 Новый проект</button>
+  </div>
+  <div style="height:24px"></div>
+</div>
+
+<!-- ========== ПЛАНИРОВКА ========== -->
+<div class="page-room-wrap" id="page-room">
+  <!-- Room tabs -->
+  <div class="room-tabs-bar" id="roomTabsBar">
+    <div class="room-tab-add" onclick="addRoom(true)" title="Добавить помещение">+</div>
+  </div>
+  <!-- Toolbar -->
+  <div class="room-toolbar">
+    <div class="tool-btn active" id="tool-draw" onclick="setTool('draw')">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 013 3L7 19l-4 1 1-4z"/></svg>Рисовать
+    </div>
+    <div class="tool-btn" id="tool-move" onclick="setTool('move')">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 9l-3 3 3 3M9 5l3-3 3 3M15 19l-3 3-3-3M19 9l3 3-3 3"/><path d="M2 12h20M12 2v20"/></svg>Двигать
+    </div>
+    <div class="tool-btn" id="tool-erase" onclick="setTool('erase')">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 20H7L3 16l10-10a2 2 0 012.8 0l4.3 4.3a2 2 0 010 2.8L16 17"/><path d="M6 15l3 3"/></svg>Удалить
+    </div>
+    <div style="width:1px;height:24px;background:var(--border);flex-shrink:0;"></div>
+    <div class="tool-btn" onclick="insertShape('rect')">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="5" width="18" height="14" rx="1"/></svg>Прямоуг
+    </div>
+    <div class="tool-btn" onclick="insertShape('lshape')">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="3,3 13,3 13,11 21,11 21,21 3,21"/></svg>Г-форма
+    </div>
+    <div class="tool-btn" onclick="insertShape('tshape')">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="3,21 3,11 9,11 9,3 15,3 15,11 21,11 21,21"/></svg>Т-форма
+    </div>
+    <div style="width:1px;height:24px;background:var(--border);flex-shrink:0;"></div>
+    <div class="tool-btn" onclick="setScale()">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35M11 8v6M8 11h6"/></svg>Масштаб
+    </div>
+    <div class="tool-btn" onclick="clearCurrentRoom()">
+      <svg viewBox="0 0 24 24" fill="none" stroke="#e05c5c" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/></svg>Очистить
+    </div>
+  </div>
+  <div class="scale-info">
+    <span>Масштаб: <b id="scaleLabel" style="color:var(--accent)">1 кл = 0.5 м</b></span>
+    <span>·</span>
+    <span id="roomHint" style="flex:1;">Ставьте точки по углам</span>
+  </div>
+  <!-- Canvas -->
+  <div class="canvas-wrap" id="canvasWrap">
+    <canvas id="roomCanvas"></canvas>
+  </div>
+  <!-- Status -->
+  <div class="room-status">
+    <div>
+      <div style="font-size:10px;color:var(--muted);">Площадь</div>
+      <div class="room-area-badge" id="roomAreaBadge">— м²</div>
+    </div>
+    <div style="text-align:center;">
+      <div style="font-size:10px;color:var(--muted);">Периметр</div>
+      <div style="font-size:14px;font-weight:700;" id="roomPerimBadge">— м</div>
+    </div>
+    <div style="text-align:right;">
+      <div style="font-size:10px;color:var(--muted);">Помещение</div>
+      <div style="font-size:12px;font-weight:600;color:var(--accent);" id="roomCanvasName">—</div>
+    </div>
+  </div>
+  <!-- Actions -->
+  <div class="room-actions">
+    <button class="btn btn-primary" onclick="applyRoomDraw()" style="font-size:12px;padding:10px;">✅ Применить в расчёт</button>
+    <button class="btn btn-secondary" onclick="undoPoint()" style="font-size:12px;padding:10px;width:auto;min-width:80px;">↩ Отмена</button>
+  </div>
+</div>
+
+<!-- ========== КАТАЛОГ ========== -->
+<div class="page" id="page-catalog">
+  <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
+    <div style="font-size:17px;font-weight:700;">Каталог</div>
+    <button class="btn btn-primary btn-sm" onclick="openAddItem()">+ Добавить</button>
+  </div>
+  <div class="sub-tabs" id="catTabs"></div>
+  <div id="catalogList"></div>
+</div>
+
+<!-- ========== КЛИЕНТЫ ========== -->
+<div class="page" id="page-clients">
+  <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
+    <div style="font-size:17px;font-weight:700;">Клиенты</div>
+    <div style="font-size:12px;color:var(--muted);" id="clientsCount">0 записей</div>
+  </div>
+  <div id="clientsList"></div>
+</div>
+
+<!-- ======= MODALS ======= -->
+<!-- Проект -->
+<div class="modal-overlay" id="modalProjectName">
+  <div class="modal">
+    <div class="modal-handle"></div>
+    <div class="modal-title">Название проекта</div>
+    <div class="field"><label>Адрес или имя клиента</label><input type="text" id="projectNameInput" placeholder="ул. Ленина 15, кв. 32"></div>
+    <div class="row2">
+      <button class="btn btn-secondary" onclick="closeModal('modalProjectName')">Отмена</button>
+      <button class="btn btn-primary" onclick="applyProjectName()">Сохранить</button>
+    </div>
+  </div>
+</div>
+
+<!-- Добавить / редактировать помещение -->
+<div class="modal-overlay" id="modalRoom">
+  <div class="modal">
+    <div class="modal-handle"></div>
+    <div class="modal-title" id="modalRoomTitle">Помещение</div>
+    <div class="field"><label>Название</label><input type="text" id="roomNameInput" placeholder="Зал / Спальня / Кухня"></div>
+    <div class="field">
+      <label>Цвет метки</label>
+      <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:4px;" id="colorPicker"></div>
+    </div>
+    <div class="field"><label>Площадь (м²) — или нарисуйте в планировщике</label><input type="number" id="roomAreaInput" placeholder="0.0" step="0.1" oninput="updateRoomCalc()"></div>
+    <div class="field"><label>Периметр (м)</label><input type="number" id="roomPerimInput" placeholder="0.0" step="0.1" oninput="updateRoomCalc()"></div>
+    <div class="field"><label>Материал (полотно)</label><select id="roomMaterialSelect" onchange="updateRoomCalc()"></select></div>
+
+    <!-- Extras in modal -->
+    <div style="font-size:12px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.7px;margin:10px 0 6px;">Доп. работы</div>
+    <div id="modalExtras"></div>
+
+    <!-- Discount -->
+    <div style="font-size:12px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.7px;margin:10px 0 6px;">Скидка / Наценка</div>
+    <div class="discount-row" style="margin-bottom:12px;">
+      <input type="number" id="roomDiscountVal" placeholder="0" min="0" oninput="updateRoomCalc()">
+      <select id="roomDiscountType" onchange="updateRoomCalc()"><option value="pct">%</option><option value="rub">₽</option></select>
+      <select id="roomDiscountDir" onchange="updateRoomCalc()"><option value="minus">Скидка</option><option value="plus">Наценка</option></select>
+    </div>
+
+    <!-- Mini result -->
+    <div id="roomCalcResult" style="background:rgba(201,168,76,.08);border:1px solid var(--accent);border-radius:10px;padding:12px;margin-bottom:14px;display:none;">
+      <div style="font-size:11px;color:var(--muted);">Стоимость помещения</div>
+      <div style="font-family:Montserrat,sans-serif;font-size:22px;font-weight:800;color:var(--accent);" id="roomCalcTotal">0 ₽</div>
+      <div id="roomCalcLines" style="margin-top:8px;font-size:12px;"></div>
+    </div>
+
+    <div class="row2">
+      <button class="btn btn-secondary" onclick="closeModal('modalRoom')">Отмена</button>
+      <button class="btn btn-primary" onclick="saveRoom()">Сохранить</button>
+    </div>
+  </div>
+</div>
+
+<!-- Добавить в каталог -->
+<div class="modal-overlay" id="modalAdd">
+  <div class="modal">
+    <div class="modal-handle"></div>
+    <div class="modal-title">Добавить позицию</div>
+    <div class="field"><label>Категория</label><select id="newCat"><option>Полотна</option><option>Монтаж</option><option>Дополнительно</option></select></div>
+    <div class="field"><label>Название</label><input type="text" id="newName" placeholder="Глянцевое полотно"></div>
+    <div class="field"><label>Цена (₽)</label><input type="number" id="newPrice" placeholder="450"></div>
+    <div class="field"><label>Единица</label><select id="newUnit"><option value="м²">м²</option><option value="м.п.">м.п.</option><option value="шт.">шт.</option><option value="компл.">компл.</option></select></div>
+    <div class="row2">
+      <button class="btn btn-secondary" onclick="closeModal('modalAdd')">Отмена</button>
+      <button class="btn btn-primary" onclick="addCatalogItem()">Добавить</button>
+    </div>
+  </div>
+</div>
+
+<!-- Клиент детали -->
+<div class="modal-overlay" id="modalClient">
+  <div class="modal">
+    <div class="modal-handle"></div>
+    <div class="modal-title" id="modalClientTitle">Клиент</div>
+    <div id="modalClientBody"></div>
+    <div style="height:10px"></div>
+    <button class="btn btn-danger btn-sm" id="modalClientDelete">Удалить запись</button>
+    <div style="height:8px"></div>
+    <button class="btn btn-secondary" onclick="closeModal('modalClient')">Закрыть</button>
+  </div>
+</div>
+
+<!-- Масштаб -->
+<div class="modal-overlay" id="modalScale">
+  <div class="modal">
+    <div class="modal-handle"></div>
+    <div class="modal-title">Масштаб сетки</div>
+    <div style="font-size:12px;color:var(--muted);margin-bottom:12px;">Сколько метров в одной клетке</div>
+    <div id="scaleOptions" style="display:flex;flex-direction:column;gap:8px;"></div>
+    <div style="height:12px"></div>
+    <button class="btn btn-secondary" onclick="closeModal('modalScale')">Закрыть</button>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+// ============================================================
+//  DATA
+// ============================================================
+const STORE='potolok_v4';
+function loadData(){try{const r=localStorage.getItem(STORE);if(r)return JSON.parse(r);}catch(e){}return defaultData();}
+function saveData(){localStorage.setItem(STORE,JSON.stringify(APP));}
+function defaultData(){return{
+  projectName:'Новый проект',
+  rooms:[],
+  catalog:[
+    {id:1,cat:'Полотна',name:'Матовое (ПВХ, белое)',price:350,unit:'м²',color:'#e0e0e0'},
+    {id:2,cat:'Полотна',name:'Глянцевое (ПВХ)',price:420,unit:'м²',color:'#b8d4f0'},
+    {id:3,cat:'Полотна',name:'Сатиновое',price:480,unit:'м²',color:'#f0e6d0'},
+    {id:4,cat:'Полотна',name:'Тканевое (Clipso)',price:750,unit:'м²',color:'#dce8dc'},
+    {id:5,cat:'Полотна',name:'Фотопечать (УФ)',price:900,unit:'м²',color:'#e8d4f0'},
+    {id:6,cat:'Полотна',name:'Матовое цветное',price:450,unit:'м²',color:'#f0d4d4'},
+    {id:7,cat:'Полотна',name:'Глянцевое цветное',price:520,unit:'м²',color:'#d4eaf0'},
+    {id:8,cat:'Полотна',name:'Парящий потолок',price:650,unit:'м²',color:'#f0f0d4'},
+    {id:9,cat:'Монтаж',name:'Монтаж полотна (стандарт)',price:180,unit:'м²',color:'#c9a84c'},
+    {id:10,cat:'Монтаж',name:'Монтаж полотна (сложный)',price:280,unit:'м²',color:'#c9a84c'},
+    {id:11,cat:'Монтаж',name:'Демонтаж старого потолка',price:120,unit:'м²',color:'#e05c5c'},
+    {id:12,cat:'Монтаж',name:'Монтаж споты',price:250,unit:'шт.',color:'#c9a84c'},
+    {id:13,cat:'Дополнительно',name:'Скрытый карниз (ниша)',price:850,unit:'м.п.',color:'#4caf7d'},
+    {id:14,cat:'Дополнительно',name:'Декоративная лента (ПВХ)',price:180,unit:'м.п.',color:'#4caf7d'},
+    {id:15,cat:'Дополнительно',name:'LED-подсветка периметр',price:350,unit:'м.п.',color:'#4caf7d'},
+    {id:16,cat:'Дополнительно',name:'Вставка / фотопечать',price:1100,unit:'м²',color:'#4caf7d'},
+    {id:17,cat:'Дополнительно',name:'Профиль пристенный',price:95,unit:'м.п.',color:'#4caf7d'},
+  ],
+  clients:[],nextId:100
+};}
+
+let APP=loadData();
+
+// ============================================================
+//  NAV
+// ============================================================
+function goPage(id){
+  document.querySelectorAll('.page,.page-room-wrap').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.nav-btn').forEach(b=>b.classList.remove('active'));
+  const el=document.getElementById('page-'+id);
+  if(el)el.classList.add('active');
+  const map={project:0,room:1,catalog:2,clients:3};
+  if(map[id]!==undefined)document.querySelectorAll('.nav-btn')[map[id]].classList.add('active');
+  if(id==='catalog')renderCatalog();
+  if(id==='clients')renderClients();
+  if(id==='room'){initCanvas();renderRoomTabs();drawRoom();}
+  if(id==='project')renderProject();
+}
+
+// ============================================================
+//  ROOMS (Project)
+// ============================================================
+const ROOM_COLORS=['#c9a84c','#4caf7d','#e05c5c','#6a9ff0','#bf7dd6','#f0a050','#50c8d4','#f0d050'];
+let editingRoomId=null;
+
+// room extras definition
+const EXTRAS_DEF=[
+  {key:'cornice',label:'Скрытый карниз',catMatch:'карниз',unit:'м.п.',hasQty:true,defaultQty:3},
+  {key:'spots',label:'Монтаж спотов',catMatch:'споты',unit:'шт.',hasQty:true,defaultQty:4,step:1},
+  {key:'demolition',label:'Демонтаж старого потолка',catMatch:'Демонтаж',unit:'м²',hasQty:false},
+  {key:'insert',label:'Вставка / фотопечать',catMatch:'Вставка',unit:'м²',hasQty:true,defaultQty:2,isArea:true},
+  {key:'ribbon',label:'Декоративная лента',catMatch:'Декоративная лента',unit:'м.п.',hasQty:true,defaultQty:3},
+  {key:'led',label:'LED-подсветка',catMatch:'LED',unit:'м.п.',hasQty:true,defaultQty:10},
+  {key:'hard',label:'Сложный монтаж (вместо стандарт)',catMatch:'_HARD_',unit:'',hasQty:false},
+];
+
+function newRoomObj(name){
+  const color=ROOM_COLORS[APP.rooms.length%ROOM_COLORS.length];
+  return {
+    id:APP.nextId++, name:name||'Помещение '+(APP.rooms.length+1),
+    color, area:0, perim:0,
+    materialId: APP.catalog.find(i=>i.cat==='Полотна')?.id||1,
+    extras:{cornice:{on:false,qty:3},spots:{on:false,qty:4},demolition:{on:false},insert:{on:false,qty:2},ribbon:{on:false,qty:3},led:{on:false,qty:10},hard:{on:false}},
+    discount:{val:0,type:'pct',dir:'minus'},
+    points:[], closed:false, total:0,
+  };
+}
+
+function addRoom(switchToRoom=false){
+  const r=newRoomObj();
+  APP.rooms.push(r);
+  saveData();
+  if(switchToRoom){
+    currentRoomId=r.id;
+    goPage('room');
+  } else {
+    editRoomModal(r.id);
+    renderProject();
+  }
+}
+
+function editRoomModal(id){
+  editingRoomId=id;
+  const room=APP.rooms.find(r=>r.id===id);
+  if(!room)return;
+  document.getElementById('modalRoomTitle').textContent='✏️ '+room.name;
+  document.getElementById('roomNameInput').value=room.name;
+  document.getElementById('roomAreaInput').value=room.area||'';
+  document.getElementById('roomPerimInput').value=room.perim||'';
+  // color picker
+  const cp=document.getElementById('colorPicker');
+  cp.innerHTML=ROOM_COLORS.map(c=>`
+    <div onclick="pickColor('${c}')" style="width:26px;height:26px;border-radius:50%;background:${c};cursor:pointer;border:3px solid ${c===room.color?'white':'transparent'};transition:border .15s;" id="cpick-${c.replace('#','')}"></div>
+  `).join('');
+  // material select
+  const ms=document.getElementById('roomMaterialSelect');
+  ms.innerHTML='';
+  APP.catalog.filter(i=>i.cat==='Полотна').forEach(item=>{
+    const o=document.createElement('option');
+    o.value=item.id; o.textContent=item.name+' — '+item.price+'₽/м²';
+    ms.appendChild(o);
+  });
+  ms.value=room.materialId;
+  // extras
+  renderModalExtras(room);
+  // discount
+  document.getElementById('roomDiscountVal').value=room.discount.val||'';
+  document.getElementById('roomDiscountType').value=room.discount.type||'pct';
+  document.getElementById('roomDiscountDir').value=room.discount.dir||'minus';
+  updateRoomCalc();
+  openModal('modalRoom');
+}
+
+function pickColor(c){
+  const room=APP.rooms.find(r=>r.id===editingRoomId);
+  if(!room)return;
+  room.color=c;
+  document.querySelectorAll('[id^="cpick-"]').forEach(el=>{el.style.borderColor='transparent';});
+  const el=document.getElementById('cpick-'+c.replace('#',''));
+  if(el)el.style.borderColor='white';
+}
+
+function renderModalExtras(room){
+  const div=document.getElementById('modalExtras');
+  div.innerHTML=EXTRAS_DEF.map(def=>{
+    const ext=room.extras[def.key]||{on:false,qty:def.defaultQty||1};
+    const catItem=APP.catalog.find(i=>i.name.includes(def.catMatch));
+    const priceStr=catItem?catItem.price+' ₽/'+catItem.unit:'—';
+    return `<div class="extra-item" id="mextra-${def.key}">
+      <div style="flex:1">
+        <div class="extra-label">${def.label}</div>
+        <div class="extra-price">${priceStr}</div>
+        ${ext.on && def.hasQty ? `<div class="extra-qty">
+          <span style="font-size:12px;color:var(--muted);flex:1">${def.isArea?'Площадь, м²':'Кол-во '+def.unit}:</span>
+          <button class="qty-btn" onclick="changeRoomQty('${def.key}',-${def.step||0.5})">−</button>
+          <div class="qty-num" id="mqty-${def.key}">${ext.qty}</div>
+          <button class="qty-btn" onclick="changeRoomQty('${def.key}',${def.step||0.5})">+</button>
+        </div>` : ''}
+      </div>
+      <div class="toggle ${ext.on?'on':''}" id="mtog-${def.key}" onclick="toggleRoomExtra('${def.key}')"></div>
+    </div>`;
+  }).join('');
+}
+
+function toggleRoomExtra(key){
+  const room=APP.rooms.find(r=>r.id===editingRoomId);if(!room)return;
+  if(!room.extras[key])room.extras[key]={on:false,qty:EXTRAS_DEF.find(d=>d.key===key)?.defaultQty||1};
+  room.extras[key].on=!room.extras[key].on;
+  renderModalExtras(room);
+  updateRoomCalc();
+}
+
+function changeRoomQty(key,delta){
+  const room=APP.rooms.find(r=>r.id===editingRoomId);if(!room)return;
+  const def=EXTRAS_DEF.find(d=>d.key===key);
+  const min=def?.step===1?1:0.5;
+  room.extras[key].qty=Math.max(min,(room.extras[key].qty||0)+delta);
+  const el=document.getElementById('mqty-'+key);
+  if(el)el.textContent=def?.step===1?Math.round(room.extras[key].qty):room.extras[key].qty.toFixed(1);
+  updateRoomCalc();
+}
+
+function updateRoomCalc(){
+  const room=APP.rooms.find(r=>r.id===editingRoomId);if(!room)return;
+  const area=parseFloat(document.getElementById('roomAreaInput').value)||0;
+  const matId=parseInt(document.getElementById('roomMaterialSelect').value);
+  const mat=APP.catalog.find(i=>i.id===matId);
+  if(!mat||area<=0){document.getElementById('roomCalcResult').style.display='none';return;}
+
+  const isHard=room.extras.hard?.on;
+  const installItem=APP.catalog.find(i=>i.name.includes(isHard?'сложный':'стандарт'));
+  const installPrice=installItem?installItem.price:180;
+
+  let lines=[],total=0;
+  const add=(label,detail,val,neg=false)=>{lines.push({label,detail,val,neg});total+=neg?-Math.abs(val):Math.abs(val);};
+
+  add(mat.name,`${area.toFixed(2)} м² × ${mat.price}₽`,mat.price*area);
+  add('Монтаж',`${area.toFixed(2)} м² × ${installPrice}₽`,installPrice*area);
+
+  EXTRAS_DEF.filter(d=>d.key!=='hard').forEach(def=>{
+    const ext=room.extras[def.key];
+    if(!ext?.on)return;
+    const ci=APP.catalog.find(i=>i.name.includes(def.catMatch));
+    const p=ci?ci.price:0; if(!p)return;
+    const qty=def.hasQty?(ext.qty||1):area;
+    add(def.label,`${typeof qty==='number'?qty.toFixed(def.step===1?0:1):qty} ${def.unit} × ${p}₽`,p*qty);
+  });
+
+  const dv=parseFloat(document.getElementById('roomDiscountVal').value)||0;
+  const dt=document.getElementById('roomDiscountType').value;
+  const dd=document.getElementById('roomDiscountDir').value;
+  if(dv>0){const delta=dt==='pct'?total*dv/100:dv;const neg=dd==='minus';add(neg?`Скидка`:`Наценка`,'',delta,neg);}
+
+  document.getElementById('roomCalcResult').style.display='';
+  document.getElementById('roomCalcTotal').textContent=Math.round(total).toLocaleString('ru')+' ₽';
+  document.getElementById('roomCalcLines').innerHTML=lines.map(l=>`
+    <div style="display:flex;justify-content:space-between;padding:3px 0;border-bottom:1px solid var(--border);">
+      <span style="color:var(--muted)">${l.label} <span style="font-size:10px;">${l.detail}</span></span>
+      <span style="font-weight:600;color:${l.neg?'var(--green)':'var(--accent2)'};">${l.neg?'−':''}${Math.abs(Math.round(l.val)).toLocaleString('ru')}₽</span>
+    </div>`).join('');
+  return total;
+}
+
+function calcRoomTotal(room){
+  const area=parseFloat(room.area)||0;
+  const mat=APP.catalog.find(i=>i.id===room.materialId);
+  if(!mat||area<=0)return 0;
+  const isHard=room.extras.hard?.on;
+  const installItem=APP.catalog.find(i=>i.name.includes(isHard?'сложный':'стандарт'));
+  const installPrice=installItem?installItem.price:180;
+  let total=mat.price*area+installPrice*area;
+  EXTRAS_DEF.filter(d=>d.key!=='hard').forEach(def=>{
+    const ext=room.extras[def.key];if(!ext?.on)return;
+    const ci=APP.catalog.find(i=>i.name.includes(def.catMatch));const p=ci?ci.price:0;if(!p)return;
+    const qty=def.hasQty?(ext.qty||1):area;
+    total+=p*qty;
+  });
+  const dv=parseFloat(room.discount?.val)||0;
+  if(dv>0){const delta=room.discount.type==='pct'?total*dv/100:dv;if(room.discount.dir==='minus')total-=delta;else total+=delta;}
+  return Math.round(total);
+}
+
+function saveRoom(){
+  const room=APP.rooms.find(r=>r.id===editingRoomId);if(!room)return;
+  room.name=document.getElementById('roomNameInput').value.trim()||room.name;
+  room.area=parseFloat(document.getElementById('roomAreaInput').value)||0;
+  room.perim=parseFloat(document.getElementById('roomPerimInput').value)||0;
+  room.materialId=parseInt(document.getElementById('roomMaterialSelect').value);
+  room.discount={val:parseFloat(document.getElementById('roomDiscountVal').value)||0,type:document.getElementById('roomDiscountType').value,dir:document.getElementById('roomDiscountDir').value};
+  room.total=calcRoomTotal(room);
+  saveData();closeModal('modalRoom');renderProject();renderRoomTabs();showToast('✅ Помещение сохранено');
+}
+
+function deleteRoom(id){
+  if(!confirm('Удалить помещение?'))return;
+  APP.rooms=APP.rooms.filter(r=>r.id!==id);
+  if(currentRoomId===id)currentRoomId=APP.rooms[0]?.id||null;
+  saveData();renderProject();renderRoomTabs();
+}
+
+function renderProject(){
+  const list=document.getElementById('roomsList');
+  const empty=document.getElementById('projectEmpty');
+  const summary=document.getElementById('projectSummary');
+  const clientBlock=document.getElementById('projectClientBlock');
+  document.getElementById('projectSubtitle').textContent=APP.projectName||'Натяжные потолки';
+
+  if(!APP.rooms.length){list.innerHTML='';empty.style.display='';summary.style.display='none';clientBlock.style.display='none';return;}
+  empty.style.display='none';
+  const grandTotal=APP.rooms.reduce((s,r)=>{r.total=calcRoomTotal(r);return s+r.total;},0);
+  summary.style.display='';
+  clientBlock.style.display='';
+  document.getElementById('projectGrand').textContent=grandTotal.toLocaleString('ru')+' ₽';
+  document.getElementById('projectRoomsSummary').innerHTML=APP.rooms.map(r=>`
+    <div style="display:flex;justify-content:space-between;font-size:12px;padding:3px 0;border-bottom:1px solid rgba(255,255,255,.06);">
+      <span style="display:flex;align-items:center;gap:5px;"><span style="width:8px;height:8px;border-radius:50%;background:${r.color};display:inline-block;"></span>${r.name}</span>
+      <span style="color:var(--accent2);font-weight:600;">${r.total.toLocaleString('ru')} ₽</span>
+    </div>`).join('');
+
+  list.innerHTML=APP.rooms.map(r=>`
+    <div class="room-card" id="rcard-${r.id}">
+      <div class="room-card-header" onclick="toggleRoomCard(${r.id})">
+        <div class="room-color-dot" style="background:${r.color}"></div>
+        <div style="flex:1">
+          <div class="room-card-name">${r.name}</div>
+          <div class="room-card-meta">${r.area?r.area+' м²  •  ':''} ${APP.catalog.find(i=>i.id===r.materialId)?.name||'—'}</div>
+        </div>
+        <div style="text-align:right;margin-right:8px;">
+          <div class="room-card-price">${r.total.toLocaleString('ru')} ₽</div>
+        </div>
+        <div class="room-card-chevron" id="chev-${r.id}">▾</div>
+      </div>
+      <div class="room-card-body" id="rbody-${r.id}">
+        ${renderRoomDetails(r)}
+        <div style="display:flex;gap:6px;margin-top:10px;flex-wrap:wrap;">
+          <button class="btn btn-secondary btn-sm" onclick="editRoomModal(${r.id});event.stopPropagation()">✏️ Изменить</button>
+          <button class="btn btn-secondary btn-sm" onclick="openRoomInEditor(${r.id});event.stopPropagation()">📐 В планировщик</button>
+          <button class="btn btn-danger btn-sm" onclick="deleteRoom(${r.id});event.stopPropagation()">🗑 Удалить</button>
+        </div>
+      </div>
+    </div>`).join('');
+}
+
+function renderRoomDetails(r){
+  const mat=APP.catalog.find(i=>i.id===r.materialId);
+  const isHard=r.extras.hard?.on;
+  const installItem=APP.catalog.find(i=>i.name.includes(isHard?'сложный':'стандарт'));
+  const installPrice=installItem?installItem.price:180;
+  const area=parseFloat(r.area)||0;
+  if(!area)return '<div style="color:var(--muted);font-size:12px;padding:4px 0;">Площадь не задана — нажмите «Изменить»</div>';
+  let lines=[];
+  if(mat)lines.push([mat.name,area.toFixed(2)+' м²',Math.round(mat.price*area)]);
+  lines.push(['Монтаж',area.toFixed(2)+' м²',Math.round(installPrice*area)]);
+  EXTRAS_DEF.filter(d=>d.key!=='hard').forEach(def=>{
+    const ext=r.extras[def.key];if(!ext?.on)return;
+    const ci=APP.catalog.find(i=>i.name.includes(def.catMatch));const p=ci?ci.price:0;if(!p)return;
+    const qty=def.hasQty?(ext.qty||1):area;
+    lines.push([def.label,qty.toFixed(def.step===1?0:1)+' '+def.unit,Math.round(p*qty)]);
+  });
+  const dv=parseFloat(r.discount?.val)||0;
+  let subtotal=lines.reduce((s,l)=>s+l[2],0);
+  if(dv>0){const delta=r.discount.type==='pct'?subtotal*dv/100:dv;const neg=r.discount.dir==='minus';lines.push([neg?'Скидка':'Наценка','',Math.round(delta)*(neg?-1:1)]);}
+  return lines.map(l=>`<div style="display:flex;justify-content:space-between;font-size:12px;padding:3px 0;border-bottom:1px solid var(--border);">
+    <span style="color:var(--muted)">${l[0]} <span style="font-size:10px">${l[1]}</span></span>
+    <span style="font-weight:600;color:${l[2]<0?'var(--green)':'var(--text)'}">${l[2]<0?'−':''}${Math.abs(l[2]).toLocaleString('ru')} ₽</span>
+  </div>`).join('');
+}
+
+function toggleRoomCard(id){
+  const body=document.getElementById('rbody-'+id);
+  const chev=document.getElementById('chev-'+id);
+  const open=body.classList.toggle('open');
+  chev.classList.toggle('open',open);
+}
+
+function openRoomInEditor(id){
+  currentRoomId=id;
+  goPage('room');
+}
+
+function newProject(){
+  if(!confirm('Начать новый проект? Текущий будет очищен.'))return;
+  APP.rooms=[];APP.projectName='Новый проект';saveData();renderProject();showToast('🔄 Новый проект');
+}
+
+function applyProjectName(){
+  APP.projectName=document.getElementById('projectNameInput').value.trim()||'Новый проект';
+  saveData();closeModal('modalProjectName');renderProject();
+}
+
+function saveClient(){
+  const name=document.getElementById('clientName').value.trim()||'Клиент без имени';
+  const phone=document.getElementById('clientPhone').value.trim();
+  const grandTotal=APP.rooms.reduce((s,r)=>s+r.total,0);
+  const roomLines=APP.rooms.map(r=>`
+    <div class="result-line"><div><div>${r.name}</div><div style="font-size:11px;color:var(--muted)">${r.area} м² • ${APP.catalog.find(i=>i.id===r.materialId)?.name||''}</div></div><div class="val">${r.total.toLocaleString('ru')} ₽</div></div>`).join('');
+  APP.clients.unshift({
+    id:APP.nextId++,name,phone,
+    projectName:APP.projectName,
+    roomCount:APP.rooms.length,
+    total:grandTotal,
+    lines:roomLines,
+    date:new Date().toLocaleDateString('ru',{day:'2-digit',month:'2-digit',year:'numeric'}),
+  });
+  saveData();showToast('✅ Проект сохранён');
+}
+
+function shareProject(){
+  const grandTotal=APP.rooms.reduce((s,r)=>s+r.total,0);
+  const lines=APP.rooms.map(r=>`  • ${r.name}: ${r.total.toLocaleString('ru')} ₽ (${r.area} м², ${APP.catalog.find(i=>i.id===r.materialId)?.name||''})`).join('\n');
+  const text=`📋 Проект: ${APP.projectName}\n\n${lines}\n\nИТОГО: ${grandTotal.toLocaleString('ru')} ₽\n\nРасчёт подготовлен ПотолокПро`;
+  if(navigator.share)navigator.share({title:'Расчёт потолков',text});
+  else navigator.clipboard.writeText(text).then(()=>showToast('📋 Скопировано'));
+}
+
+// ============================================================
+//  ROOM EDITOR (CANVAS)
+// ============================================================
+let canvas,ctx;
+let CELL=40;
+let MPC=0.5; // meters per cell
+let currentRoomId=null;
+let currentTool='draw';
+let dragIdx=-1;
+let isPanning=false,panStart={x:0,y:0};
+let pinchDist0=0,pinchCell0=0;
+let canvasW=0,canvasH=0;
+
+function currentRoom(){return APP.rooms.find(r=>r.id===currentRoomId);}
+
+function renderRoomTabs(){
+  const bar=document.getElementById('roomTabsBar');
+  const pills=APP.rooms.map(r=>`
+    <div class="room-tab-pill ${r.id===currentRoomId?'active':''}" onclick="switchRoomTab(${r.id})">
+      <span style="width:8px;height:8px;border-radius:50%;background:${r.color};display:inline-block;flex-shrink:0;"></span>
+      ${r.name}
+    </div>`).join('');
+  bar.innerHTML=pills+`<div class="room-tab-add" onclick="addRoom(true)" title="Добавить помещение">+</div>`;
+  const nameEl=document.getElementById('roomCanvasName');
+  if(nameEl)nameEl.textContent=currentRoom()?.name||'—';
+}
+
+function switchRoomTab(id){
+  currentRoomId=id;
+  renderRoomTabs();
+  updateCanvasStats();
+  drawRoom();
+}
+
+function initCanvas(){
+  if(!currentRoomId&&APP.rooms.length)currentRoomId=APP.rooms[0].id;
+  if(!currentRoomId){
+    // create first room automatically
+    const r=newRoomObj('Комната 1');APP.rooms.push(r);currentRoomId=r.id;saveData();
+  }
+  renderRoomTabs();
+  if(canvas){resizeCanvas();drawRoom();return;}
+  canvas=document.getElementById('roomCanvas');
+  ctx=canvas.getContext('2d');
+  resizeCanvas();
+
+  canvas.addEventListener('pointerdown',onPtrDown,{passive:false});
+  canvas.addEventListener('pointermove',onPtrMove,{passive:false});
+  canvas.addEventListener('pointerup',onPtrUp,{passive:false});
+  canvas.addEventListener('pointercancel',()=>{dragIdx=-1;isPanning=false;});
+  canvas.addEventListener('touchstart',onTouchStart,{passive:false});
+  canvas.addEventListener('touchmove',onTouchMove,{passive:false});
+  canvas.addEventListener('touchend',()=>{pinchDist0=0;},{passive:true});
+
+  // double-tap close
+  let lastTap=0;
+  canvas.addEventListener('touchend',e=>{
+    const now=Date.now();
+    const r=currentRoom();
+    if(now-lastTap<300&&r&&r.points.length>=3&&!r.closed){closePolygon();e.preventDefault();}
+    lastTap=now;
+  });
+  canvas.addEventListener('dblclick',e=>{
+    const r=currentRoom();
+    if(r&&r.points.length>=3&&!r.closed)closePolygon();
+  });
+  window.addEventListener('resize',()=>{if(canvas&&document.getElementById('page-room').classList.contains('active')){resizeCanvas();drawRoom();}});
+}
+
+function resizeCanvas(){
+  const wrap=document.getElementById('canvasWrap');
+  canvas.width=wrap.clientWidth;
+  canvas.height=wrap.clientHeight||300;
+  canvasW=canvas.width;canvasH=canvas.height;
+}
+
+// coords
+function g2s(gx,gy){const r=currentRoom();const ox=r?r._panX||60:60,oy=r?r._panY||60:60;return{x:gx*CELL+ox,y:gy*CELL+oy};}
+function s2g(sx,sy){const r=currentRoom();const ox=r?r._panX||60:60,oy=r?r._panY||60:60;return{x:(sx-ox)/CELL,y:(sy-oy)/CELL};}
+function snap(gx,gy){return{x:Math.round(gx*2)/2,y:Math.round(gy*2)/2};}
+function pptr(e){const rect=canvas.getBoundingClientRect();return{x:e.clientX-rect.left,y:e.clientY-rect.top};}
+
+function onPtrDown(e){
+  e.preventDefault();
+  if(e.touches&&e.touches.length>1)return;
+  const {x,y}=pptr(e);
+  const gp=s2g(x,y);
+  const r=currentRoom();if(!r)return;
+
+  if(currentTool==='draw'){
+    if(r.closed)return;
+    if(r.points.length>=3){
+      const fp=g2s(r.points[0].x,r.points[0].y);
+      if(Math.hypot(fp.x-x,fp.y-y)<22){closePolygon();return;}
+    }
+    const s=snap(gp.x,gp.y);
+    r.points.push(s);
+    saveData();drawRoom();
+    if(r.points.length===3)showToast('Двойное касание — закрыть контур',false,1800);
+  } else if(currentTool==='move'){
+    for(let i=0;i<r.points.length;i++){
+      const sp=g2s(r.points[i].x,r.points[i].y);
+      if(Math.hypot(sp.x-x,sp.y-y)<22){dragIdx=i;return;}
+    }
+    isPanning=true;
+    panStart={x:x-(r._panX||60),y:y-(r._panY||60)};
+  } else if(currentTool==='erase'){
+    for(let i=0;i<r.points.length;i++){
+      const sp=g2s(r.points[i].x,r.points[i].y);
+      if(Math.hypot(sp.x-x,sp.y-y)<22){
+        r.points.splice(i,1);
+        if(r.points.length<3)r.closed=false;
+        saveData();updateCanvasStats();drawRoom();return;
+      }
+    }
+  }
+}
+
+function onPtrMove(e){
+  e.preventDefault();
+  const {x,y}=pptr(e);
+  const r=currentRoom();if(!r)return;
+  if(dragIdx>=0){
+    const s=snap(s2g(x,y).x,s2g(x,y).y);
+    r.points[dragIdx]=s;
+    saveData();updateCanvasStats();drawRoom();
+  } else if(isPanning){
+    r._panX=x-panStart.x; r._panY=y-panStart.y;
+    saveData();drawRoom();
+  } else if(currentTool==='draw'&&!r.closed&&r.points.length>0){
+    drawRoom();
+    const s=snap(s2g(x,y).x,s2g(x,y).y);
+    const sp=g2s(s.x,s.y);
+    const last=g2s(r.points[r.points.length-1].x,r.points[r.points.length-1].y);
+    ctx.beginPath();ctx.setLineDash([5,4]);ctx.strokeStyle='rgba(201,168,76,.35)';ctx.lineWidth=1.5;
+    ctx.moveTo(last.x,last.y);ctx.lineTo(sp.x,sp.y);ctx.stroke();ctx.setLineDash([]);
+    ctx.beginPath();ctx.arc(sp.x,sp.y,4,0,Math.PI*2);ctx.fillStyle='rgba(201,168,76,.5)';ctx.fill();
+  }
+}
+
+function onPtrUp(){dragIdx=-1;isPanning=false;}
+
+function onTouchStart(e){
+  if(e.touches.length===2){pinchDist0=Math.hypot(e.touches[0].clientX-e.touches[1].clientX,e.touches[0].clientY-e.touches[1].clientY);pinchCell0=CELL;}
+}
+function onTouchMove(e){
+  if(e.touches.length===2){
+    e.preventDefault();
+    const dist=Math.hypot(e.touches[0].clientX-e.touches[1].clientX,e.touches[0].clientY-e.touches[1].clientY);
+    if(pinchDist0>0){CELL=Math.min(120,Math.max(18,Math.round(pinchCell0*dist/pinchDist0)));document.getElementById('scaleLabel').textContent='1 кл = '+MPC+' м';drawRoom();}
+  }
+}
+
+function drawRoom(){
+  if(!ctx)return;
+  ctx.clearRect(0,0,canvasW,canvasH);
+  drawGrid();
+  // draw ALL rooms faintly
+  APP.rooms.forEach(r=>{
+    if(r.id!==currentRoomId&&r.points.length>=2){drawRoomPoly(r,true);}
+  });
+  // draw current room on top
+  const r=currentRoom();
+  if(r){
+    if(r.points.length===0)drawWelcome();
+    else drawRoomPoly(r,false);
+    drawPoints(r);
+  }
+}
+
+function drawGrid(){
+  const r=currentRoom();
+  const ox=r?r._panX||60:60, oy=r?r._panY||60:60;
+  ctx.lineWidth=0.5;
+  const sx=((ox%CELL)+CELL)%CELL;
+  for(let x=sx;x<canvasW;x+=CELL){
+    const maj=Math.round((x-ox)/CELL)%2===0;
+    ctx.globalAlpha=maj?.6:.25;ctx.strokeStyle='#2e2e48';
+    ctx.beginPath();ctx.moveTo(x,0);ctx.lineTo(x,canvasH);ctx.stroke();
+  }
+  const sy=((oy%CELL)+CELL)%CELL;
+  for(let y=sy;y<canvasH;y+=CELL){
+    const maj=Math.round((y-oy)/CELL)%2===0;
+    ctx.globalAlpha=maj?.6:.25;ctx.strokeStyle='#2e2e48';
+    ctx.beginPath();ctx.moveTo(0,y);ctx.lineTo(canvasW,y);ctx.stroke();
+  }
+  ctx.globalAlpha=1;
+}
+
+function drawWelcome(){
+  ctx.fillStyle='rgba(138,138,154,.45)';ctx.font='13px Inter,sans-serif';ctx.textAlign='center';
+  ctx.fillText('Ставьте точки пальцем по углам помещения',canvasW/2,canvasH/2-8);
+  ctx.fillText('Двойное касание — закрыть контур',canvasW/2,canvasH/2+12);
+  ctx.textAlign='left';
+}
+
+function drawRoomPoly(r,faint){
+  // use room's own pan if exists, else default
+  const savedRoom=currentRoom();
+  // temporarily swap pan context for coordinate calc
+  const _cur=currentRoomId;
+  currentRoomId=r.id;
+
+  if(r.points.length<2){currentRoomId=_cur;return;}
+  ctx.beginPath();
+  const fp=g2s(r.points[0].x,r.points[0].y);
+  ctx.moveTo(fp.x,fp.y);
+  r.points.forEach((p,i)=>{if(i>0){const sp=g2s(p.x,p.y);ctx.lineTo(sp.x,sp.y);}});
+  if(r.closed)ctx.closePath();
+  if(faint){
+    ctx.fillStyle=r.color+'18';ctx.fill();
+    ctx.strokeStyle=r.color+'50';ctx.lineWidth=1.5;ctx.stroke();
+    currentRoomId=_cur;return;
+  }
+  ctx.fillStyle=r.color+'14';ctx.fill();
+  ctx.strokeStyle=r.color;ctx.lineWidth=2.5;ctx.setLineDash([]);ctx.stroke();
+  // dimension labels
+  const n=r.points.length;
+  for(let i=0;i<n;i++){
+    const a=r.points[i],b=(i<n-1)?r.points[i+1]:(r.closed?r.points[0]:null);
+    if(!b)continue;
+    const len=Math.hypot(b.x-a.x,b.y-a.y)*MPC;
+    const sa=g2s(a.x,a.y),sb=g2s(b.x,b.y);
+    const mx=(sa.x+sb.x)/2,my=(sa.y+sb.y)/2;
+    const ang=Math.atan2(sb.y-sa.y,sb.x-sa.x);
+    const ox2=-Math.sin(ang)*13,oy2=Math.cos(ang)*13;
+    ctx.save();ctx.translate(mx+ox2,my+oy2);ctx.rotate(ang);
+    const txt=len.toFixed(2)+' м';ctx.font='bold 10px Inter,sans-serif';
+    const tw=ctx.measureText(txt).width;
+    ctx.fillStyle='rgba(15,15,26,.88)';ctx.beginPath();
+    ctx.roundRect(-tw/2-4,-7,tw+8,14,3);ctx.fill();
+    ctx.fillStyle='#e8c97a';ctx.textAlign='center';ctx.textBaseline='middle';
+    ctx.fillText(txt,0,0);ctx.restore();
+  }
+  // area in center
+  if(r.closed&&r.points.length>=3){
+    const area=polyArea(r);
+    const cx=r.points.reduce((s,p)=>s+p.x,0)/r.points.length;
+    const cy=r.points.reduce((s,p)=>s+p.y,0)/r.points.length;
+    const sc=g2s(cx,cy);
+    const txt=area.toFixed(2)+' м²';
+    ctx.font='bold 14px Montserrat,sans-serif';const tw=ctx.measureText(txt).width;
+    ctx.fillStyle='rgba(15,15,26,.9)';ctx.beginPath();ctx.roundRect(sc.x-tw/2-10,sc.y-11,tw+20,22,5);ctx.fill();
+    ctx.fillStyle=r.color;ctx.textAlign='center';ctx.textBaseline='middle';ctx.fillText(txt,sc.x,sc.y);ctx.textAlign='left';
+  }
+  currentRoomId=_cur;
+}
+
+function drawPoints(r){
+  r.points.forEach((p,i)=>{
+    const sp=g2s(p.x,p.y);
+    const isFirst=i===0;
+    ctx.beginPath();ctx.arc(sp.x,sp.y,isFirst?10:7,0,Math.PI*2);
+    ctx.fillStyle=isFirst?'rgba(76,175,125,.2)':'rgba(201,168,76,.15)';ctx.fill();
+    ctx.beginPath();ctx.arc(sp.x,sp.y,isFirst?6:4,0,Math.PI*2);
+    ctx.fillStyle=isFirst?'#4caf7d':'#c9a84c';ctx.fill();
+    if(!r.closed){
+      ctx.font='bold 8px Inter,sans-serif';ctx.fillStyle='#0f0f1a';
+      ctx.textAlign='center';ctx.textBaseline='middle';ctx.fillText(i+1,sp.x,sp.y);ctx.textAlign='left';
+    }
+  });
+}
+
+function polyArea(r){
+  let a=0;const n=r.points.length;
+  for(let i=0;i<n;i++){const j=(i+1)%n;a+=r.points[i].x*r.points[j].y-r.points[j].x*r.points[i].y;}
+  return Math.abs(a/2)*MPC*MPC;
+}
+function polyPerim(r){
+  let p=0;const n=r.points.length;
+  for(let i=0;i<n;i++){if(!r.closed&&i===n-1)break;const j=(i+1)%n;p+=Math.hypot(r.points[j].x-r.points[i].x,r.points[j].y-r.points[i].y);}
+  return p*MPC;
+}
+
+function closePolygon(){
+  const r=currentRoom();if(!r||r.points.length<3)return;
+  r.closed=true;
+  const area=polyArea(r);const perim=polyPerim(r);
+  r.area=parseFloat(area.toFixed(2));r.perim=parseFloat(perim.toFixed(2));
+  r.total=calcRoomTotal(r);saveData();updateCanvasStats();drawRoom();showToast('✅ Контур закрыт');
+}
+
+function updateCanvasStats(){
+  const r=currentRoom();if(!r){return;}
+  if(r.closed&&r.points.length>=3){
+    document.getElementById('roomAreaBadge').textContent=polyArea(r).toFixed(2)+' м²';
+    document.getElementById('roomPerimBadge').textContent=polyPerim(r).toFixed(2)+' м';
+  } else {
+    document.getElementById('roomAreaBadge').textContent='— м²';
+    document.getElementById('roomPerimBadge').textContent='— м';
+  }
+  document.getElementById('roomCanvasName').textContent=r.name;
+}
+
+function applyRoomDraw(){
+  const r=currentRoom();
+  if(!r||!r.closed||r.points.length<3){showToast('Сначала нарисуйте и закройте контур',true);return;}
+  const area=polyArea(r);const perim=polyPerim(r);
+  r.area=parseFloat(area.toFixed(2));r.perim=parseFloat(perim.toFixed(2));
+  r.total=calcRoomTotal(r);saveData();
+  showToast('✅ Площадь перенесена — откройте помещение для настройки');
+  goPage('project');renderProject();
+}
+
+function undoPoint(){
+  const r=currentRoom();if(!r)return;
+  if(r.closed){r.closed=false;drawRoom();return;}
+  if(r.points.length>0){r.points.pop();saveData();updateCanvasStats();drawRoom();}
+}
+
+function clearCurrentRoom(){
+  if(!confirm('Очистить чертёж этого помещения?'))return;
+  const r=currentRoom();if(!r)return;
+  r.points=[];r.closed=false;r.area=0;r.perim=0;saveData();updateCanvasStats();drawRoom();
+}
+
+function insertShape(type){
+  const r=currentRoom();if(!r)return;
+  const cx=2,cy=2;
+  if(type==='rect')r.points=[{x:cx,y:cy},{x:cx+8,y:cy},{x:cx+8,y:cy+6},{x:cx,y:cy+6}];
+  else if(type==='lshape')r.points=[{x:cx,y:cy},{x:cx+8,y:cy},{x:cx+8,y:cy+4},{x:cx+5,y:cy+4},{x:cx+5,y:cy+6},{x:cx,y:cy+6}];
+  else if(type==='tshape')r.points=[{x:cx+2,y:cy},{x:cx+6,y:cy},{x:cx+6,y:cy+3},{x:cx+8,y:cy+3},{x:cx+8,y:cy+6},{x:cx,y:cy+6},{x:cx,y:cy+3},{x:cx+2,y:cy+3}];
+  r.closed=true;const area=polyArea(r);const perim=polyPerim(r);
+  r.area=parseFloat(area.toFixed(2));r.perim=parseFloat(perim.toFixed(2));
+  r.total=calcRoomTotal(r);saveData();updateCanvasStats();drawRoom();
+  showToast('✏️ Перетащите точки чтобы настроить форму');setTool('move');
+}
+
+function setTool(t){
+  currentTool=t;
+  document.querySelectorAll('.tool-btn[id^="tool-"]').forEach(b=>b.classList.remove('active'));
+  const el=document.getElementById('tool-'+t);if(el)el.classList.add('active');
+  canvas.style.cursor=t==='draw'?'crosshair':t==='move'?'grab':'cell';
+  const hints={draw:'Ставьте точки по углам. Первая точка — зелёная.',move:'Тяните точку или двигайте чертёж.',erase:'Нажмите на точку чтобы удалить.'};
+  document.getElementById('roomHint').textContent=hints[t]||'';
+}
+
+function setScale(){
+  const opts=[0.1,0.25,0.5,1.0,2.0];
+  document.getElementById('scaleOptions').innerHTML=opts.map(m=>`
+    <div onclick="applyScale(${m});closeModal('modalScale')" style="padding:11px 14px;background:var(--card);border-radius:10px;cursor:pointer;display:flex;justify-content:space-between;border:1.5px solid ${m===MPC?'var(--accent)':'var(--border)'}">
+      <span>1 клетка = <b>${m} м</b></span>${m===MPC?'<span style="color:var(--accent)">✓</span>':''}
+    </div>`).join('');
+  openModal('modalScale');
+}
+
+function applyScale(m){MPC=m;document.getElementById('scaleLabel').textContent='1 кл = '+m+' м';updateCanvasStats();drawRoom();}
+
+// ============================================================
+//  CATALOG
+// ============================================================
+let activeCatTab='Полотна';
+function renderCatalog(){
+  const cats=[...new Set(APP.catalog.map(i=>i.cat))];
+  document.getElementById('catTabs').innerHTML=cats.map(c=>`<div class="sub-tab ${c===activeCatTab?'active':''}" onclick="switchCatTab('${c}')">${c}</div>`).join('');
+  const items=APP.catalog.filter(i=>i.cat===activeCatTab);
+  document.getElementById('catalogList').innerHTML=items.map(item=>`
+    <div class="cat-item" id="catitem-${item.id}">
+      <div class="cat-dot" style="background:${item.color||'#888'}"></div>
+      <div class="cat-info">
+        <div class="cat-view"><div class="cat-name">${item.name}</div><div class="cat-price">${item.price} ₽ / ${item.unit}</div></div>
+        <div class="edit-inline"><input class="price-input" type="number" value="${item.price}" id="ei-${item.id}"><button class="btn btn-primary btn-sm" onclick="saveItemPrice(${item.id})">OK</button></div>
+      </div>
+      <div class="cat-actions">
+        <button class="btn btn-secondary btn-sm btn-icon" onclick="document.getElementById('catitem-${item.id}').classList.toggle('editing')">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+        </button>
+        <button class="btn btn-secondary btn-sm btn-icon" onclick="deleteCatalogItem(${item.id})">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#e05c5c" stroke-width="2.5"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/><path d="M10 11v6M14 11v6"/><path d="M9 6V4h6v2"/></svg>
+        </button>
+      </div>
+    </div>`).join('')||'<div class="empty"><div class="empty-icon">📦</div><div class="empty-text">Нет позиций</div></div>';
+}
+function switchCatTab(c){activeCatTab=c;renderCatalog();}
+function saveItemPrice(id){
+  const p=parseFloat(document.getElementById('ei-'+id).value);
+  if(!isNaN(p)&&p>=0){APP.catalog.find(i=>i.id===id).price=p;saveData();renderCatalog();showToast('💾 Цена обновлена');}
+}
+function deleteCatalogItem(id){if(confirm('Удалить?')){APP.catalog=APP.catalog.filter(i=>i.id!==id);saveData();renderCatalog();}}
+function openAddItem(){document.getElementById('newName').value='';document.getElementById('newPrice').value='';openModal('modalAdd');}
+function addCatalogItem(){
+  const name=document.getElementById('newName').value.trim();
+  const price=parseFloat(document.getElementById('newPrice').value);
+  const cat=document.getElementById('newCat').value;
+  const unit=document.getElementById('newUnit').value;
+  if(!name||isNaN(price)){showToast('Заполните все поля',true);return;}
+  APP.catalog.push({id:APP.nextId++,cat,name,price,unit,color:cat==='Полотна'?'#b8d4f0':cat==='Монтаж'?'#c9a84c':'#4caf7d'});
+  saveData();closeModal('modalAdd');activeCatTab=cat;renderCatalog();showToast('✅ Добавлено');
+}
+
+// ============================================================
+//  CLIENTS
+// ============================================================
+function renderClients(){
+  document.getElementById('clientsCount').textContent=APP.clients.length+' записей';
+  document.getElementById('clientsList').innerHTML=!APP.clients.length
+    ?'<div class="empty"><div class="empty-icon">👤</div><div class="empty-text">Здесь будут сохранённые проекты</div></div>'
+    :APP.clients.map(c=>`
+      <div class="client-card" onclick="openClient(${c.id})">
+        <div class="client-header"><div class="client-name">${c.name}</div><div class="client-date">${c.date}</div></div>
+        <div class="client-detail">📋 ${c.projectName||'Проект'} · ${c.roomCount} помещ.</div>
+        ${c.phone?`<div class="client-detail">📞 ${c.phone}</div>`:''}
+        <div class="client-total">${c.total.toLocaleString('ru')} ₽</div>
+      </div>`).join('');
+}
+function openClient(id){
+  const c=APP.clients.find(x=>x.id===id);if(!c)return;
+  document.getElementById('modalClientTitle').textContent=c.name;
+  document.getElementById('modalClientBody').innerHTML=`
+    <div style="margin-bottom:10px">${c.phone?`<div style="font-size:13px;color:var(--muted);margin-bottom:3px;">📞 ${c.phone}</div>`:''}<div style="font-size:11px;color:var(--muted);">📅 ${c.date} · 📋 ${c.projectName}</div></div>
+    <div style="font-size:22px;font-weight:700;color:var(--accent);margin-bottom:10px;">${c.total.toLocaleString('ru')} ₽</div>
+    <div>${c.lines}</div>`;
+  document.getElementById('modalClientDelete').onclick=()=>{if(confirm('Удалить?')){APP.clients=APP.clients.filter(x=>x.id!==id);saveData();closeModal('modalClient');renderClients();showToast('🗑 Удалено');}};
+  openModal('modalClient');
+}
+
+// ============================================================
+//  MODALS / TOAST
+// ============================================================
+function openModal(id){document.getElementById(id).classList.add('open');}
+function closeModal(id){document.getElementById(id).classList.remove('open');}
+document.querySelectorAll('.modal-overlay').forEach(m=>{m.addEventListener('click',e=>{if(e.target===m)m.classList.remove('open');});});
+let toastTimer;
+function showToast(msg,error=false,dur=2400){
+  const t=document.getElementById('toast');t.textContent=msg;t.className='toast show'+(error?' error':'');
+  clearTimeout(toastTimer);toastTimer=setTimeout(()=>t.classList.remove('show'),dur);
+}
+
+// ============================================================
+//  INIT
+// ============================================================
+document.getElementById('projectNameInput').value=APP.projectName||'';
+renderProject();
+</script>
+</body>
+</html>
